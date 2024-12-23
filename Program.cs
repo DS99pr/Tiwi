@@ -22,6 +22,7 @@ namespace TiwiOS {
     public string OpnHelp = @"^opn$";
     public string OpnWrite = @"^opn (\w+).(\w+) -w$";
     public string OpnRead = @"^opn (\w+).(\w+) -r$";
+    public string RandomNumber = @"^rnd (\d+) (\d+)$";
    };
   class Program {
    public static void Main() {
@@ -200,8 +201,19 @@ namespace TiwiOS {
          catch (FileNotFoundException) {
           Console.WriteLine($"Cannot find file named like that.");
          } 
-        }
-        else {
+        } else if (Regex.Match(InputText, Patterns.RandomNumber).Success) {
+         try {
+          string FirstRange = Regex.Match(InputText, Patterns.RandomNumber).Groups[1].Value;
+          string SecondRange = Regex.Match(InputText, Patterns.RandomNumber).Groups[2].Value;
+          int ConvertedFirstRange = Convert.ToInt32(FirstRange);
+          int ConvertedSecondRange = Convert.ToInt32(SecondRange);
+          Random RandomSystem = new Random();
+          int GeneratedNum = RandomSystem.Next(ConvertedFirstRange, ConvertedSecondRange);
+          Console.WriteLine(GeneratedNum);
+         } catch (ArgumentOutOfRangeException) {
+          Console.WriteLine("Range error occured while using operating system; First number needs to be lower than second.");
+         } 
+        } else {
          Console.WriteLine("CommandNotFound | SyntaxError | ArgError");
         }
        }
@@ -213,7 +225,8 @@ namespace TiwiOS {
 - settings [?cmd] :-: open the settings, or set something,
 - now [?arg] :-: look at the now time,
 - gsu [url] :-: get http method. without 'http' prefix,
-- opn [?fp] [?arg] :-: write or read the file.
+- opn [?fp] [?arg] :-: write or read the file,
+- rnd [arg1] [arg2] :-: random a number from [arg1] to [arg2].
 ";
    }
    static void Test(string InputText) {
