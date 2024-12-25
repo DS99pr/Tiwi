@@ -20,6 +20,8 @@ namespace TiwiOS {
     public string NowDateTime = @"^now -dt$";
     public string GetStringFromUrl = @"^gsu (.*)$";
     public string OpnHelp = @"^opn$";
+    public string OpnCreate = @"^opn (\w+).(\w+) -c$";
+    public string OpnDelete = @"^opn (\w+).(\w+) -d$";
     public string OpnWrite = @"^opn (\w+).(\w+) -w$";
     public string OpnRead = @"^opn (\w+).(\w+) -r$";
     public string RandomNumber = @"^rnd (\d+) (\d+)$";
@@ -157,7 +159,7 @@ namespace TiwiOS {
           HttpClient client = new HttpClient();
           string Response = client.GetStringAsync($"http://{Url}").Result;
           Console.WriteLine(Response);
-         } catch (System.AggregateException e) {
+         } catch (AggregateException e) {
           Console.WriteLine($"HTTP error occured while using operating system; {e.Message}");
          }
          catch (Exception e) {
@@ -165,9 +167,38 @@ namespace TiwiOS {
          }   
         } else if (Regex.Match(InputText, Patterns.OpnHelp).Success) {
          Console.WriteLine("--- Opn ---");
+         Console.WriteLine("opn [fp] -c :-; create a file");
+         Console.WriteLine("opn [fp] -d :-: delete the file");
          Console.WriteLine("opn [fp] -w :-: write to the file");
          Console.WriteLine("opn [fp] -r :-: read from the file");
-        } else if (Regex.Match(InputText, Patterns.OpnWrite).Success) {
+        } else if (Regex.Match(InputText, Patterns.OpnCreate).Success) {
+         if (!Directory.Exists("Notepad")) {
+          Directory.CreateDirectory("Notepad");
+         } 
+         string FileName = Regex.Match(InputText, Patterns.OpnCreate).Groups[1].Value;
+         string FileExtension = Regex.Match(InputText, Patterns.OpnCreate).Groups[2].Value;
+         if (FileExtension == "tf") {
+          File.WriteAllText($"Notepad/{FileName}.{FileExtension}", "");
+         } else {
+          Console.WriteLine("Your file needs to end with '.tf' (only support for files on TiwiOS)");
+         }
+        } else if (Regex.Match(InputText, Patterns.OpnDelete).Success) {
+         if (!Directory.Exists("Notepad")) {
+          Directory.CreateDirectory("Notepad");
+         } 
+         string FileName = Regex.Match(InputText, Patterns.OpnDelete).Groups[1].Value;
+         string FileExtension = Regex.Match(InputText, Patterns.OpnDelete).Groups[2].Value;
+         if (FileExtension == "tf") {
+          if (File.Exists($"Notepad/{FileName}.{FileExtension}")) {
+           File.Delete($"Notepad/{FileName}.{FileExtension}"); 
+          } else {
+           Console.WriteLine("Typed file doesn't exists."); 
+          }
+         } else {
+          Console.WriteLine("Your file needs to end with '.tf' (only support for files on TiwiOS)");
+         }
+        }
+        else if (Regex.Match(InputText, Patterns.OpnWrite).Success) {
          if (!Directory.Exists("Notepad")) {
           Directory.CreateDirectory("Notepad");
          }
